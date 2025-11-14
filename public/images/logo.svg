@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        .logo-text { font: 700 28px 'Arial'; fill: #333; }
+        .logo-border { fill: none; stroke: #333; stroke-width: 2; }
+    </style>
+    <rect x="10" y="10" width="60" height="60" rx="30" class="logo-border"/>
+    <text x="40" y="47" class="logo-text" text-anchor="middle" dominant-baseline="middle">BHC</text>
+</svg>
