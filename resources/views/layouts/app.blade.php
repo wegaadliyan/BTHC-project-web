@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>BTHC - Better Hope Collection</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +17,22 @@
     </style>
 </head>
 <body class="bg-white">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1 0 auto;
+        }
+        footer {
+            flex-shrink: 0;
+        }
+    </style>
     <!-- Top black bar -->
     <!-- Main Header -->
     <header class="bg-white shadow-sm">
@@ -37,11 +54,22 @@
             </div>
             <!-- Utility Icons -->
             <div class="flex items-center space-x-4">
+                <a href="{{ route('belum-bayar') }}" class="text-gray-700 hover:text-yellow-600 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2a4 4 0 004 4h10a4 4 0 004-4v-2a4 4 0 00-4-4h-1a4 4 0 00-4 4z" />
+                    </svg>
+                </a>
                 <a href="/cart" class="text-gray-700 hover:text-gray-900 relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <span class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    @php
+                        $cartCount = 0;
+                        if(auth()->check()) {
+                            $cartCount = \App\Models\Cart::where('user_id', auth()->id())->sum('quantity');
+                        }
+                    @endphp
+                    <span class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ $cartCount }}</span>
                 </a>
                 @guest
                     <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900 font-medium">Sign In</a>
@@ -69,14 +97,15 @@
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
                              class="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-xl z-20">
-                            <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Akun Saya</a>
+                            <a href="{{ route('orders') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pesanan Saya</a>
                             @if(Auth::user()->is_admin)
                                 <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Panel</a>
                             @endif
                             <a href="{{ route('logout') }}" 
                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                               Logout
+                               Log Out
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                                 @csrf

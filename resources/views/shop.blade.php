@@ -127,7 +127,7 @@
         @foreach($products as $product)
             <a href="/product/{{ $product['id'] }}" class="product-card">
                 <div class="product-image-wrapper">
-                    <img src="{{ asset('images/' . $product['image']) }}" alt="{{ $product['name'] }}">
+                    <img src="{{ asset('storage/products/' . $product['image']) }}" alt="{{ $product['name'] }}">
                     @if($product['sale'])
                     <div class="sale-badge">SALE</div>
                     @endif

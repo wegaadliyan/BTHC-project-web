@@ -4,8 +4,14 @@
 <div class="custom-products-section">
     <div class="section-header">
         <h1>Produk Custom</h1>
-        <a href="#" class="add-btn">Tambah Produk</a>
+        <a href="{{ route('admin.custom-products.create') }}" class="add-btn">Tambah Produk</a>
     </div>
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
     <table class="custom-products-table">
         <thead>
@@ -21,28 +27,48 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($customProducts as $product)
+            @forelse($customProducts as $product)
             <tr>
                 <td>{{ $product->product_code }}</td>
                 <td>
-                    <img src="{{ asset('storage/custom-products/' . $product->image) }}" alt="{{ $product->name }}" class="product-img">
+                    <img src="{{ asset('storage/products/' . $product->image) }}" alt="{{ $product->name }}" class="product-img">
                 </td>
                 <td>{{ $product->name }}</td>
-                <td>{{ $product->color }}</td>
-                <td>{{ $product->size }}</td>
-                <td>{{ $product->charm }}</td>
+                <td>{{ $product->color ?? '-' }}</td>
+                <td>{{ $product->size ?? '-' }}</td>
+                <td>{{ $product->charm ?? '-' }}</td>
                 <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                 <td class="actions">
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Hapus</button>
+                    <a href="{{ route('admin.custom-products.edit', $product->id) }}" class="edit-btn">Edit</a>
+                    <form action="{{ route('admin.custom-products.destroy', $product->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="delete-btn" onclick="return confirm('Yakin ingin menghapus produk ini?')">Hapus</button>
+                    </form>
                 </td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 20px;">Tidak ada produk custom</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 </div>
 
 <style>
+.alert {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
 .custom-products-section {
     padding: 20px;
 }
@@ -61,6 +87,11 @@
     border-radius: 5px;
     color: #333;
     text-decoration: none;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background-color: #ddd3ca;
 }
 
 .custom-products-table {
@@ -101,6 +132,8 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
 }
 
 .edit-btn {
@@ -108,9 +141,17 @@
     color: #333;
 }
 
+.edit-btn:hover {
+    background-color: #ddd3ca;
+}
+
 .delete-btn {
     background-color: #FFE4E4;
     color: #FF4444;
+}
+
+.delete-btn:hover {
+    background-color: #ffd4d4;
 }
 </style>
 @endsection

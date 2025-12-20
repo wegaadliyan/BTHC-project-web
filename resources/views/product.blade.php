@@ -241,6 +241,11 @@
 </style>
 
 <div class="product-detail-page">
+    @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50" @click="show = false">
+            {{ session('success') }}
+        </div>
+    @endif
     <a href="/shop" class="back-button">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -250,41 +255,94 @@
     <div class="product-detail-container">
         <div class="product-image-section">
             <div class="product-image-wrapper">
-                <img src="{{ asset('images/' . $product['image']) }}" alt="{{ $product['name'] }}">
+                <img src="{{ asset('storage/products/' . $product->image) }}" alt="{{ $product->name }}">
             </div>
         </div>
         
         <div class="product-details-section">
-            <h1 class="product-name">{{ $product['name'] }}</h1>
-            <p class="product-price">RP {{ number_format($product['price'], 0, ',', '.') }}</p>
+            <h1 class="product-name">{{ $product->name }}</h1>
+            <p class="product-price">RP {{ number_format($product->price, 0, ',', '.') }}</p>
             
+            <!-- Color selector: tampilkan jika sudah ada field color di database -->
+            @if(property_exists($product, 'color') && $product->color)
             <div class="color-selector">
                 <label class="color-label">Color:</label>
                 <div class="color-option" id="colorOption">
-                    {{ $product['colors'][0] ?? 'Default' }}
+                    {{ $product->color }}
                 </div>
             </div>
+            @endif
             
-            <div class="quantity-selector">
-                <label class="quantity-label">Quantity:</label>
-                <div class="quantity-controls">
-                    <button class="quantity-button" onclick="decreaseQuantity()">-</button>
-                    <span class="quantity-value" id="quantityValue">0</span>
-                    <button class="quantity-button" onclick="increaseQuantity()">+</button>
-                </div>
-            </div>
-            
-            <div class="action-buttons">
-                <button class="action-button" onclick="addToCart()">Add to Cart</button>
-                <button class="action-button" onclick="buyNow()">Buy Now</button>
-            </div>
+                <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}" onsubmit="return addToCartAjax(event)">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <div class="quantity-selector">
+                        <label class="quantity-label">Quantity:</label>
+                        <div class="quantity-controls">
+                            <button type="button" class="quantity-button" onclick="changeQuantity(-1)">-</button>
+                            <input type="number" id="quantityValue" name="quantity" value="1" min="1" style="width:60px;text-align:center;font-size:18px;">
+                            <button type="button" class="quantity-button" onclick="changeQuantity(1)">+</button>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button type="submit" class="action-button">Add to Cart</button>
+                        <button type="button" class="action-button" onclick="buyNowToCart(this.form)">Buy Now</button>
+                    </div>
+                </form>
+            <script>
+            function changeQuantity(val) {
+                var input = document.getElementById('quantityValue');
+                var qty = parseInt(input.value) || 1;
+                qty += val;
+                if (qty < 1) qty = 1;
+                input.value = qty;
+            }
+            function addToCartAjax(e) {
+                e.preventDefault();
+                var form = document.getElementById('addToCartForm');
+                var formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
+                    },
+                    body: formData
+                })
+                .then(response => response.ok ? response.text() : Promise.reject(response))
+                .then(() => {
+                    // Show pop-up success
+                    var popup = document.createElement('div');
+                    popup.textContent = 'Produk berhasil ditambahkan ke keranjang!';
+                    popup.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
+                    document.body.appendChild(popup);
+                    setTimeout(() => popup.remove(), 2000);
+                });
+                return false;
+            }
+            function buyNowToCart(form) {
+                var formData = new FormData(form);
+                fetch('{{ route('cart.add') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
+                    },
+                    body: formData
+                })
+                .then(response => response.ok ? response.text() : Promise.reject(response))
+                .then(() => {
+                    window.location.href = '/cart';
+                });
+            }
+            </script>
         </div>
     </div>
     
     <div class="product-info-section">
         <h2 class="product-info-title">Produk Info</h2>
         <p class="product-description">
-            {{ $product['description'] }}
+            {{ $product->description }}
         </p>
     </div>
 </div>

@@ -33,6 +33,7 @@
         border-radius: 8px;
         overflow: hidden;
         transition: transform 0.3s ease;
+        cursor: pointer;
     }
 
     .product-card:hover {
@@ -87,6 +88,8 @@
         max-width: 600px;
         width: 90%;
         position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
     }
 
     .close-button {
@@ -221,37 +224,27 @@
     }
 </style>
 
+@if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-transition class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50" @click="show = false">
+        {{ session('success') }}
+    </div>
+@endif
 <div class="custom-page">
     <h1 class="page-title">Custom</h1>
     <p class="page-description">Pilih desain dasar dan modifikasi sesuai keinginan Anda.</p>
 
     <div class="products-grid">
-        <!-- Terra Soul -->
-        <div class="product-card" onclick="openCustomModal('Terra Soul', 35000, 'terra-soul.png')">
-            <img src="{{ asset('images/terra-soul.png') }}" alt="Terra Soul" class="product-image">
-            <div class="product-info">
-                <h3 class="product-name">Terra Soul</h3>
-                <p class="product-price">Rp 35.000</p>
+        @forelse($customProducts as $product)
+            <div class="product-card" onclick="openCustomModal({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, '{{ $product->image }}', '{{ addslashes($product->color) }}', '{{ addslashes($product->size) }}', '{{ addslashes($product->charm) }}')">
+                <img src="{{ asset('storage/products/' . $product->image) }}" alt="{{ $product->name }}" class="product-image">
+                <div class="product-info">
+                    <h3 class="product-name">{{ $product->name }}</h3>
+                    <p class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                </div>
             </div>
-        </div>
-
-        <!-- Red Pearl -->
-        <div class="product-card" onclick="openCustomModal('Red Pearl', 60000, 'red-pearl.png')">
-            <img src="{{ asset('images/red-pearl.png') }}" alt="Red Pearl" class="product-image">
-            <div class="product-info">
-                <h3 class="product-name">Red Pearl</h3>
-                <p class="product-price">Rp 60.000</p>
-            </div>
-        </div>
-
-        <!-- Lapis Lazuli -->
-        <div class="product-card" onclick="openCustomModal('Lapis Lazuli', 60000, 'lapis-lazuli.png')">
-            <img src="{{ asset('images/lapis-lazuli.png') }}" alt="Lapis Lazuli" class="product-image">
-            <div class="product-info">
-                <h3 class="product-name">Lapis Lazuli</h3>
-                <p class="product-price">Rp 60.000</p>
-            </div>
-        </div>
+        @empty
+            <p>Tidak ada produk custom tersedia.</p>
+        @endforelse
     </div>
 </div>
 
@@ -271,57 +264,93 @@
                 
                 <div class="option-group">
                     <h3 class="option-title">Warna</h3>
-                    <div class="color-options">
-                        <button class="option-button" onclick="selectOption(this, 'color')">Hitam</button>
-                        <button class="option-button" onclick="selectOption(this, 'color')">Putih</button>
+                    <div class="color-options" id="colorOptions">
                         <button class="option-button" onclick="selectOption(this, 'color')">Merah</button>
-                        <button class="option-button" onclick="selectOption(this, 'color')">Biru</button>
+                        <button class="option-button" onclick="selectOption(this, 'color')">Putih</button>
+                        <button class="option-button" onclick="selectOption(this, 'color')">Hitam</button>
                     </div>
                 </div>
 
                 <div class="option-group">
                     <h3 class="option-title">Ukuran</h3>
-                    <div class="size-options">
-                        <button class="option-button" onclick="selectOption(this, 'size')">15cm</button>
-                        <button class="option-button" onclick="selectOption(this, 'size')">17cm</button>
-                        <button class="option-button" onclick="selectOption(this, 'size')">19cm</button>
+                    <div class="size-options" id="sizeOptions">
+                        <button class="option-button" onclick="selectOption(this, 'size')">15 cm</button>
+                        <button class="option-button" onclick="selectOption(this, 'size')">17 cm</button>
+                        <button class="option-button" onclick="selectOption(this, 'size')">19 cm</button>
                     </div>
                 </div>
 
                 <div class="option-group">
                     <h3 class="option-title">Charm</h3>
-                    <div class="charm-options">
+                    <div class="charm-options" id="charmOptions">
                         <button class="option-button" onclick="selectOption(this, 'charm')">Love</button>
                         <button class="option-button" onclick="selectOption(this, 'charm')">Key</button>
                         <button class="option-button" onclick="selectOption(this, 'charm')">Star</button>
                     </div>
                 </div>
 
-                <div class="option-group">
-                    <h3 class="option-title">Jumlah</h3>
-                    <input type="number" class="quantity-input" value="1" min="1">
-                </div>
-
-                <div class="action-buttons">
-                    <button class="add-to-cart">Add to Cart</button>
-                    <button class="buy-now">Buy Now</button>
-                </div>
+                <form id="customAddToCartForm" method="POST" action="{{ route('cart.add') }}" onsubmit="return addToCartCustomAjax(event)">
+                    @csrf
+                    <input type="hidden" name="custom_product_id" id="formCustomProductId">
+                    <input type="hidden" name="color" id="formColor">
+                    <input type="hidden" name="size" id="formSize">
+                    <input type="hidden" name="charm" id="formCharm">
+                    <input type="hidden" name="price" id="formPrice">
+                    <div class="option-group">
+                        <h3 class="option-title">Jumlah</h3>
+                        <input type="number" class="quantity-input" name="quantity" id="formQuantity" value="1" min="1">
+                    </div>
+                    <div class="action-buttons">
+                        <button type="submit" class="add-to-cart">Add to Cart</button>
+                        <button type="button" class="buy-now" onclick="buyNowCustom()">Buy Now</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function openCustomModal(productName, price, image) {
+    function openCustomModal(productId, productName, price, image, color, size, charm) {
         const modal = document.getElementById('customModal');
         const modalProductName = document.getElementById('modalProductName');
         const modalProductPrice = document.getElementById('modalProductPrice');
         const modalProductImage = document.getElementById('modalProductImage');
 
+        // Set form values
+        document.getElementById('formCustomProductId').value = productId;
+        document.getElementById('formPrice').value = price;
+        document.getElementById('formColor').value = color;
+        document.getElementById('formSize').value = size;
+        document.getElementById('formCharm').value = charm;
+        document.getElementById('formQuantity').value = 1;
+
         modalProductName.textContent = productName;
-        modalProductPrice.textContent = `Rp ${price.toLocaleString()}`;
-        modalProductImage.src = `/images/${image}`;
-        
+        modalProductPrice.textContent = `Rp ${price.toLocaleString('id-ID')}`;
+        modalProductImage.src = `/storage/products/${image}`;
+
+        // Set default selections from product data
+        if (color) {
+            const colorBtn = Array.from(document.querySelectorAll('#colorOptions .option-button'))
+                .find(btn => btn.textContent.toLowerCase().includes(color.toLowerCase()));
+            if (colorBtn) {
+                colorBtn.click();
+            }
+        }
+        if (size) {
+            const sizeBtn = Array.from(document.querySelectorAll('#sizeOptions .option-button'))
+                .find(btn => btn.textContent.includes(size));
+            if (sizeBtn) {
+                sizeBtn.click();
+            }
+        }
+        if (charm) {
+            const charmBtn = Array.from(document.querySelectorAll('#charmOptions .option-button'))
+                .find(btn => btn.textContent.toLowerCase().includes(charm.toLowerCase()));
+            if (charmBtn) {
+                charmBtn.click();
+            }
+        }
         modal.classList.add('show');
     }
 
@@ -336,9 +365,54 @@
         parent.querySelectorAll('.option-button').forEach(btn => {
             btn.classList.remove('active');
         });
-        
         // Add active class to selected button
         button.classList.add('active');
+        // Set value to hidden input
+        document.getElementById('form' + capitalize(type)).value = button.textContent;
+    }
+
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Add to Cart: default submit, tetap di halaman custom
+    function addToCartCustomAjax(e) {
+        e.preventDefault();
+        var form = document.getElementById('customAddToCartForm');
+        var formData = new FormData(form);
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
+            },
+            body: formData
+        })
+        .then(response => response.ok ? response.text() : Promise.reject(response))
+        .then(() => {
+            var popup = document.createElement('div');
+            popup.textContent = 'Produk custom berhasil ditambahkan ke keranjang!';
+            popup.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+        });
+        return false;
+    }
+    function buyNowCustom() {
+        const form = document.getElementById('customAddToCartForm');
+        var formData = new FormData(form);
+        fetch('{{ route('cart.add') }}', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
+            },
+            body: formData
+        })
+        .then(response => response.ok ? response.text() : Promise.reject(response))
+        .then(() => {
+            window.location.href = '/cart';
+        });
     }
 </script>
 @endsection

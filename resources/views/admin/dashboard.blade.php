@@ -2,7 +2,17 @@
 
 @section('content')
 <div class="dashboard">
-    <h1>Admin Dashboard</h1>
+    <div class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <div class="dashboard-actions">
+            <a href="{{ url('/') }}" class="btn-action btn-web" target="_blank">
+                <i class="fas fa-globe"></i> Lihat Website
+            </a>
+            <a href="{{ url('/shop') }}" class="btn-action btn-shop" target="_blank">
+                <i class="fas fa-shopping-bag"></i> Lihat Shop
+            </a>
+        </div>
+    </div>
     
     <div class="stats-grid">
         <div class="stat-card">
@@ -50,6 +60,67 @@
 <style>
 .dashboard {
     padding: 20px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.dashboard-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-web {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-web:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-shop {
+    background-color: #2196F3;
+    color: white;
+}
+
+.btn-shop:hover {
+    background-color: #0b7dda;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.btn-action i {
+    font-size: 1.1rem;
 }
 
 .stats-grid {
