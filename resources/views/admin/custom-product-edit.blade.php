@@ -35,18 +35,70 @@
         </div>
 
         <div class="form-group">
-            <label for="color">Warna</label>
-            <input type="text" id="color" name="color" value="{{ old('color', $customProduct->color) }}">
-        </div>
-
-        <div class="form-group">
             <label for="size">Ukuran</label>
             <input type="text" id="size" name="size" value="{{ old('size', $customProduct->size) }}">
         </div>
 
         <div class="form-group">
-            <label for="charm">Charm</label>
-            <input type="text" id="charm" name="charm" value="{{ old('charm', $customProduct->charm) }}">
+            <label for="weight">Berat (gram)</label>
+            <input type="number" id="weight" name="weight" value="{{ old('weight', $customProduct->weight) }}" placeholder="Contoh: 500">
+        </div>
+
+        <!-- Charm 1 -->
+        <div class="form-group">
+            <label for="charm_1">Charm 1 (Nama)</label>
+            <input type="text" id="charm_1" name="charm_1" value="{{ old('charm_1', $customProduct->charm_1) }}">
+        </div>
+
+        <div class="form-group">
+            <label for="charm_1_image">Foto Charm 1</label>
+            @if($customProduct->charm_1_image)
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('storage/products/' . $customProduct->charm_1_image) }}" alt="Charm 1" style="width:80px;height:80px;object-fit:cover;border-radius:4px;">
+                </div>
+            @endif
+            <input type="file" id="charm_1_image" name="charm_1_image" accept="image/*">
+            @error('charm_1_image')
+                <span class="error">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Charm 2 -->
+        <div class="form-group">
+            <label for="charm_2">Charm 2 (Nama)</label>
+            <input type="text" id="charm_2" name="charm_2" value="{{ old('charm_2', $customProduct->charm_2) }}">
+        </div>
+
+        <div class="form-group">
+            <label for="charm_2_image">Foto Charm 2</label>
+            @if($customProduct->charm_2_image)
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('storage/products/' . $customProduct->charm_2_image) }}" alt="Charm 2" style="width:80px;height:80px;object-fit:cover;border-radius:4px;">
+                </div>
+            @endif
+            <input type="file" id="charm_2_image" name="charm_2_image" accept="image/*">
+            @error('charm_2_image')
+                <span class="error">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Charm 3 -->
+        <div class="form-group">
+            <label for="charm_3">Charm 3 (Nama)</label>
+            <input type="text" id="charm_3" name="charm_3" value="{{ old('charm_3', $customProduct->charm_3) }}">
+        </div>
+
+        <div class="form-group">
+            <label for="charm_3_image">Foto Charm 3</label>
+            @if($customProduct->charm_3_image)
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('storage/products/' . $customProduct->charm_3_image) }}" alt="Charm 3" style="width:80px;height:80px;object-fit:cover;border-radius:4px;">
+                </div>
+            @endif
+            <input type="file" id="charm_3_image" name="charm_3_image" accept="image/*">
+            @error('charm_3_image')
+                <span class="error">{{ $message }}</span>
+            @enderror
         </div>
 
         <div class="form-group">

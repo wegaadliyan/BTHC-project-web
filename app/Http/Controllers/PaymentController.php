@@ -234,19 +234,26 @@ class PaymentController extends Controller
         return view('checkout.pending', compact('orderId'));
     }
 
-    public function belumBayar()
-    {
-        $user = Auth::user();
-        $pendingPayments = Payment::where('user_id', $user->id)
-            ->where('status', 'pending')
-            ->get();
-        return view('belum-bayar', compact('pendingPayments'));
-    }
-
     public function orders()
     {
         $user = Auth::user();
-        $orders = Payment::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        
+        // Group payments by order_id and get the most recent status for each order
+        $orders = Payment::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('order_id')
+            ->map(function($group) {
+                // Get first payment as representative
+                $order = $group->first();
+                // Add all items in this order
+                $order->items = $group;
+                // Get refund request status for this order
+                $refundRequest = \App\Models\RefundRequest::where('order_id', $order->order_id)->first();
+                $order->refund_request = $refundRequest;
+                return $order;
+            });
+        
         // Admin WhatsApp number from config (clean digits)
         $adminPhone = config('admin.whatsapp', '') ?: config('admin.phone', '');
         $adminPhoneClean = preg_replace('/[^0-9]/', '', $adminPhone);
@@ -402,9 +409,88 @@ class PaymentController extends Controller
         }
     }
 
+    /**
+     * Request refund - User submits refund request with reason
+     */
+    public function requestRefund(Request $request, $orderId)
+    {
+        $user = Auth::user();
+        
+        \Log::info('RequestRefund called', [
+            'user_id' => $user->id,
+            'order_id' => $orderId,
+            'request_data' => $request->all()
+        ]);
+        
+        // Validate
+        $validated = $request->validate([
+            'reason' => 'required|string|min:10|max:500'
+        ]);
+
+        try {
+            // Check if order exists and belongs to user
+            $payment = Payment::where('order_id', $orderId)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$payment) {
+                return $this->refundResponse($request, false, 'Pesanan tidak ditemukan', 404);
+            }
+
+            // Check if refund request already exists
+            $existingRequest = \App\Models\RefundRequest::where('order_id', $orderId)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($existingRequest) {
+                return $this->refundResponse($request, false, 'Anda sudah mengajukan refund request untuk pesanan ini. Silakan tunggu persetujuan admin.', 400);
+            }
+
+            // Create refund request
+            $refundRequest = \App\Models\RefundRequest::create([
+                'user_id' => $user->id,
+                'order_id' => $orderId,
+                'reason' => $validated['reason'],
+                'status' => 'pending'
+            ]);
+
+            \Log::info('Refund request created', [
+                'refund_request_id' => $refundRequest->id,
+                'order_id' => $orderId,
+                'user_id' => $user->id
+            ]);
+
+            return $this->refundResponse($request, true, 'Request refund berhasil dikirim. Admin akan meninjau dalam waktu 1x24 jam.', 201);
+
+        } catch (\Exception $e) {
+            \Log::error('Refund request error', [
+                'error' => $e->getMessage(),
+                'order_id' => $orderId
+            ]);
+
+            return $this->refundResponse($request, false, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
+        }
+    }
+
     private function getShippingCost($destination, $weight)
     {
         // Mock function - actual shipping cost comes from checkout form
         return 20000;
+    }
+
+    /**
+     * Unified response for refund request (JSON or redirect)
+     */
+    private function refundResponse(Request $request, bool $success, string $message, int $status = 200)
+    {
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => $success,
+                'message' => $message
+            ], $status);
+        }
+
+        $flashKey = $success ? 'success' : 'error';
+        return redirect()->route('orders')->with($flashKey, $message);
     }
 }

@@ -14,6 +14,34 @@
         body {
             font-family: 'Nunito Sans', 'Inter', sans-serif;
         }
+        
+        /* Navigation Links Hover Effect */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #000, #666);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
     </style>
 </head>
 <body class="bg-white">
@@ -45,20 +73,15 @@
                 </a>
                 <!-- Navigation Links -->
                 <div class="hidden md:flex space-x-6">
-                    <a href="/" class="text-gray-700 hover:text-gray-900 font-medium">Home</a>
-                    <a href="/shop" class="text-gray-700 hover:text-gray-900 font-medium">Shop</a>
-                    <a href="/custom" class="text-gray-700 hover:text-gray-900 font-medium">Custom</a>
-                    <a href="/about" class="text-gray-700 hover:text-gray-900 font-medium">About Us</a>
-                    <a href="/contact" class="text-gray-700 hover:text-gray-900 font-medium">Contacts</a>
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/shop" class="nav-link">Shop</a>
+                    <a href="/custom" class="nav-link">Custom</a>
+                    <a href="/about" class="nav-link">About Us</a>
+                    <a href="/contact" class="nav-link">Contacts</a>
                 </div>
             </div>
             <!-- Utility Icons -->
             <div class="flex items-center space-x-4">
-                <a href="{{ route('belum-bayar') }}" class="text-gray-700 hover:text-yellow-600 relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2a4 4 0 004 4h10a4 4 0 004-4v-2a4 4 0 00-4-4h-1a4 4 0 00-4 4z" />
-                    </svg>
-                </a>
                 <a href="/cart" class="text-gray-700 hover:text-gray-900 relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />

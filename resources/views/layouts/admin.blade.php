@@ -50,21 +50,6 @@
             padding: 20px;
             background-color: #fff;
         }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-
-        .profile-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #E6DFD5;
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
@@ -74,6 +59,9 @@
             <ul class="sidebar-menu">
                 <li><a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-th-large"></i> Dashboard
+                </a></li>
+                <li><a href="{{ route('admin.banners.index') }}" class="{{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
+                    <i class="fas fa-image"></i> Banner Slider
                 </a></li>
                 <li><a href="{{ route('admin.products') }}" class="{{ request()->routeIs('admin.products') ? 'active' : '' }}">
                     <i class="fas fa-box"></i> Produk
@@ -87,6 +75,9 @@
                 <li><a href="{{ route('admin.payments') }}" class="{{ request()->routeIs('admin.payments') ? 'active' : '' }}">
                     <i class="fas fa-credit-card"></i> Payment
                 </a></li>
+                <li><a href="{{ route('admin.contacts') }}" class="{{ request()->routeIs('admin.contacts') ? 'active' : '' }}">
+                    <i class="fas fa-envelope"></i> Contacts
+                </a></li>
                 <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a></li>
@@ -96,9 +87,6 @@
             </form>
         </div>
         <div class="main-content">
-            <div class="user-profile">
-                <div class="profile-icon"></div>
-            </div>
             @yield('content')
         </div>
     </div>

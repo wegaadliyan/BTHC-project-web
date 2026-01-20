@@ -11,8 +11,13 @@ class CustomProduct extends Model
         'price',
         'image',
         'product_code',
-        'color',
         'size',
-        'charm'
+        'weight',
+        'charm_1',
+        'charm_1_image',
+        'charm_2',
+        'charm_2_image',
+        'charm_3',
+        'charm_3_image'
     ];
 }

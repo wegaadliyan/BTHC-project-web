@@ -231,11 +231,11 @@
 @endif
 <div class="custom-page">
     <h1 class="page-title">Custom</h1>
-    <p class="page-description">Pilih desain dasar dan modifikasi sesuai keinginan Anda.</p>
+    <p class="page-description">Pilih charm sesuai dengan keinginan anda.</p>
 
     <div class="products-grid">
         @forelse($customProducts as $product)
-            <div class="product-card" onclick="openCustomModal({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, '{{ $product->image }}', '{{ addslashes($product->color) }}', '{{ addslashes($product->size) }}', '{{ addslashes($product->charm) }}')">
+            <div class="product-card" onclick="openCustomModal({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, '{{ $product->image }}', '{{ addslashes($product->size) }}', {{ json_encode(['charm_1' => $product->charm_1, 'charm_1_image' => $product->charm_1_image, 'charm_2' => $product->charm_2, 'charm_2_image' => $product->charm_2_image, 'charm_3' => $product->charm_3, 'charm_3_image' => $product->charm_3_image]) }})">
                 <img src="{{ asset('storage/products/' . $product->image) }}" alt="{{ $product->name }}" class="product-image">
                 <div class="product-info">
                     <h3 class="product-name">{{ $product->name }}</h3>
@@ -263,15 +263,6 @@
                 <p id="modalProductPrice" class="product-price"></p>
                 
                 <div class="option-group">
-                    <h3 class="option-title">Warna</h3>
-                    <div class="color-options" id="colorOptions">
-                        <button class="option-button" onclick="selectOption(this, 'color')">Merah</button>
-                        <button class="option-button" onclick="selectOption(this, 'color')">Putih</button>
-                        <button class="option-button" onclick="selectOption(this, 'color')">Hitam</button>
-                    </div>
-                </div>
-
-                <div class="option-group">
                     <h3 class="option-title">Ukuran</h3>
                     <div class="size-options" id="sizeOptions">
                         <button class="option-button" onclick="selectOption(this, 'size')">15 cm</button>
@@ -282,17 +273,12 @@
 
                 <div class="option-group">
                     <h3 class="option-title">Charm</h3>
-                    <div class="charm-options" id="charmOptions">
-                        <button class="option-button" onclick="selectOption(this, 'charm')">Love</button>
-                        <button class="option-button" onclick="selectOption(this, 'charm')">Key</button>
-                        <button class="option-button" onclick="selectOption(this, 'charm')">Star</button>
-                    </div>
+                    <div class="charm-options" id="charmOptions"></div>
                 </div>
 
                 <form id="customAddToCartForm" method="POST" action="{{ route('cart.add') }}" onsubmit="return addToCartCustomAjax(event)">
                     @csrf
                     <input type="hidden" name="custom_product_id" id="formCustomProductId">
-                    <input type="hidden" name="color" id="formColor">
                     <input type="hidden" name="size" id="formSize">
                     <input type="hidden" name="charm" id="formCharm">
                     <input type="hidden" name="price" id="formPrice">
@@ -311,32 +297,70 @@
 </div>
 
 <script>
-    function openCustomModal(productId, productName, price, image, color, size, charm) {
+    function openCustomModal(productId, productName, price, image, size, charms) {
         const modal = document.getElementById('customModal');
         const modalProductName = document.getElementById('modalProductName');
         const modalProductPrice = document.getElementById('modalProductPrice');
         const modalProductImage = document.getElementById('modalProductImage');
+        const charmOptions = document.getElementById('charmOptions');
 
         // Set form values
         document.getElementById('formCustomProductId').value = productId;
         document.getElementById('formPrice').value = price;
-        document.getElementById('formColor').value = color;
         document.getElementById('formSize').value = size;
-        document.getElementById('formCharm').value = charm;
         document.getElementById('formQuantity').value = 1;
 
         modalProductName.textContent = productName;
         modalProductPrice.textContent = `Rp ${price.toLocaleString('id-ID')}`;
         modalProductImage.src = `/storage/products/${image}`;
 
-        // Set default selections from product data
-        if (color) {
-            const colorBtn = Array.from(document.querySelectorAll('#colorOptions .option-button'))
-                .find(btn => btn.textContent.toLowerCase().includes(color.toLowerCase()));
-            if (colorBtn) {
-                colorBtn.click();
+        // Build charm options dynamically
+        charmOptions.innerHTML = '';
+        const charmButtonsContainer = document.createElement('div');
+        charmButtonsContainer.style.display = 'flex';
+        charmButtonsContainer.style.flexWrap = 'wrap';
+        charmButtonsContainer.style.gap = '12px';
+        charmButtonsContainer.style.marginBottom = '16px';
+        
+        const charmDetailsContainer = document.createElement('div');
+        charmDetailsContainer.id = 'charmDetailsContainer';
+        charmDetailsContainer.style.marginTop = '12px';
+        
+        for (let i = 1; i <= 3; i++) {
+            const charmName = charms[`charm_${i}`];
+            const charmImage = charms[`charm_${i}_image`];
+            
+            if (charmName) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-button';
+                btn.textContent = charmName;
+                btn.dataset.charm = charmName;
+                btn.dataset.image = charmImage || '';
+                btn.style.flex = '1';
+                btn.style.minWidth = '100px';
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    // Remove active from all charm buttons
+                    charmButtonsContainer.querySelectorAll('.option-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    // Add active to clicked button
+                    this.classList.add('active');
+                    // Update form value
+                    document.getElementById('formCharm').value = charmName;
+                    // Show charm image
+                    showCharmDetails(charmImage);
+                };
+                
+                charmButtonsContainer.appendChild(btn);
             }
         }
+        
+        charmOptions.appendChild(charmButtonsContainer);
+        charmOptions.appendChild(charmDetailsContainer);
+
+        // Set default selections from product data
         if (size) {
             const sizeBtn = Array.from(document.querySelectorAll('#sizeOptions .option-button'))
                 .find(btn => btn.textContent.includes(size));
@@ -344,14 +368,25 @@
                 sizeBtn.click();
             }
         }
-        if (charm) {
-            const charmBtn = Array.from(document.querySelectorAll('#charmOptions .option-button'))
-                .find(btn => btn.textContent.toLowerCase().includes(charm.toLowerCase()));
-            if (charmBtn) {
-                charmBtn.click();
-            }
-        }
+        
         modal.classList.add('show');
+    }
+    
+    function showCharmDetails(charmImage) {
+        const container = document.getElementById('charmDetailsContainer');
+        container.innerHTML = '';
+        if (charmImage) {
+            const imgContainer = document.createElement('div');
+            imgContainer.style.textAlign = 'center';
+            const img = document.createElement('img');
+            img.src = `/storage/products/${charmImage}`;
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '4px';
+            imgContainer.appendChild(img);
+            container.appendChild(imgContainer);
+        }
     }
 
     function closeCustomModal() {

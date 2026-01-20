@@ -7,7 +7,6 @@
     <table class="users-table">
         <thead>
             <tr>
-                <th>Username</th>
                 <th>Nama</th>
                 <th>Email</th>
                 <th>No. Telp</th>
@@ -16,12 +15,6 @@
         <tbody>
             @foreach($users as $user)
             <tr>
-                <td>
-                    <div class="user-info">
-                        <div class="user-avatar"></div>
-                        {{ $user->username }}
-                    </div>
-                </td>
                 <td>{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->phone }}</td>
@@ -55,19 +48,6 @@
 .users-table th {
     background-color: #F5F1EB;
     font-weight: 600;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #E6DFD5;
 }
 </style>
 @endsection

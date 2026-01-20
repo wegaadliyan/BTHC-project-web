@@ -120,4 +120,29 @@ class AdminPaymentController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Delete payment record
+     */
+    public function destroy($id)
+    {
+        try {
+            $payment = Payment::find($id);
+            
+            if (!$payment) {
+                return redirect()->route('admin.payments')->with('error', 'Data pembayaran tidak ditemukan');
+            }
+            
+            $payment->delete();
+            
+            return redirect()->route('admin.payments')->with('success', 'Data pembayaran berhasil dihapus');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting payment', [
+                'id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->route('admin.payments')->with('error', 'Terjadi kesalahan saat menghapus data');
+        }
+    }
 }

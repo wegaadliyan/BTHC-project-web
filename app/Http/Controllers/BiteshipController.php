@@ -47,6 +47,36 @@ class BiteshipController extends Controller
                 $allCouriers = $response->json()['couriers'] ?? [];
                 \Log::info('Total couriers received: ' . count($allCouriers));
                 
+                // Log all courier codes for debugging
+                $allCodes = array_map(function($c) { return $c['courier_code'] ?? 'unknown'; }, $allCouriers);
+                \Log::info('All courier codes: ' . implode(', ', array_unique($allCodes)));
+                
+                // Kurir yang ingin dihapus
+                $excludedCouriers = [
+                    'gojek',
+                    'grab',
+                    'deliveree',
+                    'ninja',
+                    'lion',
+                    'sentralcargo',
+                    'sentral_cargo',
+                    'sentral-cargo',
+                    'scentralcargo',
+                    'centralcargo',
+                    'idexpress',
+                    'rpx',
+                    'wahana',
+                    'anteraja',
+                    'sap',
+                    'borzo',
+                    'lalamove',
+                    'dash',
+                    'dash_express',
+                    'dashexpress',
+                    'pos',
+                    'paxel',
+                ];
+                
                 // Group couriers by courier_code and get first instance of each
                 $groupedCouriers = [];
                 $seenCodes = [];
@@ -56,6 +86,11 @@ class BiteshipController extends Controller
                     
                     // Skip if already seen
                     if (!$code || in_array($code, $seenCodes)) {
+                        continue;
+                    }
+                    
+                    // Skip if courier is in excluded list (check with multiple variations)
+                    if (in_array(strtolower($code), $excludedCouriers) || in_array(str_replace('-', '_', strtolower($code)), $excludedCouriers)) {
                         continue;
                     }
                     

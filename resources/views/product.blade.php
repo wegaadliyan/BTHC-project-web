@@ -299,41 +299,54 @@
             }
             function addToCartAjax(e) {
                 e.preventDefault();
-                var form = document.getElementById('addToCartForm');
-                var formData = new FormData(form);
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
-                    },
-                    body: formData
-                })
-                .then(response => response.ok ? response.text() : Promise.reject(response))
-                .then(() => {
-                    // Show pop-up success
-                    var popup = document.createElement('div');
-                    popup.textContent = 'Produk berhasil ditambahkan ke keranjang!';
-                    popup.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
-                    document.body.appendChild(popup);
-                    setTimeout(() => popup.remove(), 2000);
-                });
+                
+                // Check if user is logged in
+                @if(auth()->check())
+                    var form = document.getElementById('addToCartForm');
+                    var formData = new FormData(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
+                        },
+                        body: formData
+                    })
+                    .then(response => response.ok ? response.text() : Promise.reject(response))
+                    .then(() => {
+                        // Show pop-up success
+                        var popup = document.createElement('div');
+                        popup.textContent = 'Produk berhasil ditambahkan ke keranjang!';
+                        popup.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
+                        document.body.appendChild(popup);
+                        setTimeout(() => popup.remove(), 2000);
+                    });
+                @else
+                    // Redirect to login page
+                    window.location.href = '{{ route('login') }}';
+                @endif
                 return false;
             }
             function buyNowToCart(form) {
-                var formData = new FormData(form);
-                fetch('{{ route('cart.add') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
-                    },
-                    body: formData
-                })
-                .then(response => response.ok ? response.text() : Promise.reject(response))
-                .then(() => {
-                    window.location.href = '/cart';
-                });
+                // Check if user is logged in
+                @if(auth()->check())
+                    var formData = new FormData(form);
+                    fetch('{{ route('cart.add') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': form.querySelector('[name=_token]').value
+                        },
+                        body: formData
+                    })
+                    .then(response => response.ok ? response.text() : Promise.reject(response))
+                    .then(() => {
+                        window.location.href = '/cart';
+                    });
+                @else
+                    // Redirect to login page
+                    window.location.href = '{{ route('login') }}';
+                @endif
             }
             </script>
         </div>

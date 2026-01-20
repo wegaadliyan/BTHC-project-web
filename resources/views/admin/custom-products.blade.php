@@ -19,7 +19,6 @@
                 <th>ID Produk</th>
                 <th>Gambar</th>
                 <th>Nama Produk</th>
-                <th>Warna</th>
                 <th>Ukuran</th>
                 <th>Charm</th>
                 <th>Harga</th>
@@ -34,9 +33,16 @@
                     <img src="{{ asset('storage/products/' . $product->image) }}" alt="{{ $product->name }}" class="product-img">
                 </td>
                 <td>{{ $product->name }}</td>
-                <td>{{ $product->color ?? '-' }}</td>
                 <td>{{ $product->size ?? '-' }}</td>
-                <td>{{ $product->charm ?? '-' }}</td>
+                <td>
+                    @php
+                        $charms = [];
+                        if($product->charm_1) $charms[] = $product->charm_1;
+                        if($product->charm_2) $charms[] = $product->charm_2;
+                        if($product->charm_3) $charms[] = $product->charm_3;
+                    @endphp
+                    {{ count($charms) > 0 ? implode(', ', $charms) : '-' }}
+                </td>
                 <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                 <td class="actions">
                     <a href="{{ route('admin.custom-products.edit', $product->id) }}" class="edit-btn">Edit</a>
@@ -49,7 +55,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8" style="text-align: center; padding: 20px;">Tidak ada produk custom</td>
+                <td colspan="7" style="text-align: center; padding: 20px;">Tidak ada produk custom</td>
             </tr>
             @endforelse
         </tbody>

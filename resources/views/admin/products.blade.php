@@ -58,7 +58,7 @@
                     <input type="number" id="editPrice" name="price" style="font-size:1rem;padding:10px 14px;border:1px solid #ccc;border-radius:8px;" required>
 
                     <label style="font-size:1.1rem;font-weight:600;">Berat (gram)</label>
-                    <input type="number" id="editWeight" name="weight" min="100" style="font-size:1rem;padding:10px 14px;border:1px solid #ccc;border-radius:8px;" required placeholder="Misal: 500">
+                    <input type="number" id="editWeight" name="weight" style="font-size:1rem;padding:10px 14px;border:1px solid #ccc;border-radius:8px;" required placeholder="Misal: 500">
 
                     <label style="font-size:1.1rem;font-weight:600;">Deskripsi Produk</label>
                     <input type="text" id="editDescription" name="description" style="font-size:1rem;padding:10px 14px;border:1px solid #ccc;border-radius:8px;">

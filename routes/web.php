@@ -33,7 +33,8 @@ Route::post('/midtrans/webhook', [App\Http\Controllers\PaymentController::class,
 */
 
 Route::get('/', function () {
-    return view('home');
+    $banners = \App\Models\Banner::where('is_active', true)->orderBy('order')->get();
+    return view('home', compact('banners'));
 });
 
 
@@ -52,6 +53,9 @@ Route::get('/contact', function () {
     return view('contact');
 });
 
+// Contact form submission
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
+
 
 Route::get('/product/{id}', function ($id) {
     $product = Product::findOrFail($id);
@@ -65,7 +69,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // Profile Routes
 Route::middleware(['auth'])->group(function () {
             Route::get('/orders', [App\Http\Controllers\PaymentController::class, 'orders'])->name('orders');
-        Route::get('/belum-bayar', [App\Http\Controllers\PaymentController::class, 'belumBayar'])->name('belum-bayar');
+        Route::post('/refund/request/{orderId}', [App\Http\Controllers\PaymentController::class, 'requestRefund'])->name('refund.request');
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/account', [App\Http\Controllers\ProfileController::class, 'account'])->name('profile.account');
     Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
@@ -103,10 +107,31 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/custom-products/{customProduct}/edit', [App\Http\Controllers\AdminDashboardController::class, 'editCustomProduct'])->name('admin.custom-products.edit');
     Route::put('/custom-products/{customProduct}', [App\Http\Controllers\AdminDashboardController::class, 'updateCustomProduct'])->name('admin.custom-products.update');
     Route::delete('/custom-products/{customProduct}', [App\Http\Controllers\AdminDashboardController::class, 'destroyCustomProduct'])->name('admin.custom-products.destroy');
+    
+    // Banner routes
+    Route::get('/banners', [App\Http\Controllers\Admin\BannerController::class, 'index'])->name('admin.banners.index');
+    Route::get('/banners/create', [App\Http\Controllers\Admin\BannerController::class, 'create'])->name('admin.banners.create');
+    Route::post('/banners', [App\Http\Controllers\Admin\BannerController::class, 'store'])->name('admin.banners.store');
+    Route::get('/banners/{banner}/edit', [App\Http\Controllers\Admin\BannerController::class, 'edit'])->name('admin.banners.edit');
+    Route::put('/banners/{banner}', [App\Http\Controllers\Admin\BannerController::class, 'update'])->name('admin.banners.update');
+    Route::delete('/banners/{banner}', [App\Http\Controllers\Admin\BannerController::class, 'destroy'])->name('admin.banners.destroy');
+    Route::post('/banners/update-order', [App\Http\Controllers\Admin\BannerController::class, 'updateOrder'])->name('admin.banners.update-order');
+    Route::patch('/banners/{banner}/toggle', [App\Http\Controllers\Admin\BannerController::class, 'toggleStatus'])->name('admin.banners.toggle');
+    
     Route::get('/users', [App\Http\Controllers\AdminDashboardController::class, 'users'])->name('admin.users');
     Route::get('/payments', [App\Http\Controllers\AdminPaymentController::class, 'index'])->name('admin.payments');
     Route::get('/payments/{orderId}', [App\Http\Controllers\AdminPaymentController::class, 'show'])->name('admin.payments.show');
     Route::post('/payments/{orderId}/status', [App\Http\Controllers\AdminPaymentController::class, 'updateStatus'])->name('admin.payments.update-status');
-        Route::put('/payments/confirm/{id}', [App\Http\Controllers\AdminDashboardController::class, 'confirmPayment'])->name('admin.payments.confirm');
+    Route::put('/payments/confirm/{id}', [App\Http\Controllers\AdminDashboardController::class, 'confirmPayment'])->name('admin.payments.confirm');
+    Route::delete('/payments/{id}', [App\Http\Controllers\AdminPaymentController::class, 'destroy'])->name('admin.payments.destroy');
+    
+    Route::get('/refunds', [App\Http\Controllers\AdminRefundController::class, 'index'])->name('admin.refunds');
+    Route::get('/refunds/{id}', [App\Http\Controllers\AdminRefundController::class, 'show'])->name('admin.refunds.show');
+    Route::post('/refunds/{id}/approve', [App\Http\Controllers\AdminRefundController::class, 'approve'])->name('admin.refunds.approve');
+    Route::post('/refunds/{id}/reject', [App\Http\Controllers\AdminRefundController::class, 'reject'])->name('admin.refunds.reject');
+    
     Route::get('/profile', [App\Http\Controllers\AdminDashboardController::class, 'profile'])->name('admin.profile');
+    Route::get('/contacts', [App\Http\Controllers\Admin\ContactController::class, 'index'])->name('admin.contacts');
+    Route::get('/contacts/{id}', [App\Http\Controllers\Admin\ContactController::class, 'show'])->name('admin.contacts.show');
+    Route::delete('/contacts/{id}', [App\Http\Controllers\Admin\ContactController::class, 'destroy'])->name('admin.contacts.destroy');
 });

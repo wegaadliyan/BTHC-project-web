@@ -23,7 +23,7 @@ class AdminDashboardController extends Controller
             'product_code' => 'required|unique:products,product_code',
             'name' => 'required',
             'price' => 'required|numeric',
-            'weight' => 'required|numeric|min:100',
+            'weight' => 'required|numeric',
             'description' => 'nullable',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
@@ -51,7 +51,7 @@ class AdminDashboardController extends Controller
             'product_code' => 'sometimes|required|unique:products,product_code,' . $product->id,
             'name' => 'sometimes|required',
             'price' => 'sometimes|required|numeric',
-            'weight' => 'sometimes|required|numeric|min:100',
+            'weight' => 'sometimes|required|numeric',
             'description' => 'nullable',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
@@ -118,11 +118,25 @@ class AdminDashboardController extends Controller
             'product_code' => 'required|unique:custom_products,product_code',
             'name' => 'required',
             'price' => 'required|numeric',
-            'color' => 'nullable',
             'size' => 'nullable',
-            'charm' => 'nullable',
+            'weight' => 'nullable|integer|min:1',
+            'charm_1' => 'nullable|string',
+            'charm_1_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'charm_2' => 'nullable|string',
+            'charm_2_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'charm_3' => 'nullable|string',
+            'charm_3_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
+
+        // Handle charm images
+        for ($i = 1; $i <= 3; $i++) {
+            $fieldName = "charm_{$i}_image";
+            if ($request->hasFile($fieldName)) {
+                $imagePath = $request->file($fieldName)->store('products', 'public');
+                $validated[$fieldName] = basename($imagePath);
+            }
+        }
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
@@ -146,11 +160,25 @@ class AdminDashboardController extends Controller
             'product_code' => 'sometimes|required|unique:custom_products,product_code,' . $customProduct->id,
             'name' => 'sometimes|required',
             'price' => 'sometimes|required|numeric',
-            'color' => 'nullable',
             'size' => 'nullable',
-            'charm' => 'nullable',
+            'weight' => 'nullable|integer|min:1',
+            'charm_1' => 'nullable|string',
+            'charm_1_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'charm_2' => 'nullable|string',
+            'charm_2_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'charm_3' => 'nullable|string',
+            'charm_3_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
+
+        // Handle charm images
+        for ($i = 1; $i <= 3; $i++) {
+            $fieldName = "charm_{$i}_image";
+            if ($request->hasFile($fieldName)) {
+                $imagePath = $request->file($fieldName)->store('products', 'public');
+                $validated[$fieldName] = basename($imagePath);
+            }
+        }
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');

@@ -139,9 +139,6 @@
             <a href="{{ route('profile.password') }}" class="profile-menu-item @if(Route::currentRouteName() == 'profile.password') active @endif">
                 <span>🔐</span> Ubah Password
             </a>
-            <a href="{{ route('profile.address') }}" class="profile-menu-item @if(Route::currentRouteName() == 'profile.address') active @endif">
-                <span>📍</span> Alamat
-            </a>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="profile-menu-item">
                 <span>🚪</span> Keluar
             </a>
@@ -170,7 +167,7 @@
         @else
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                 <h2 style="font-size: 2rem; font-weight: 700; color: #222; margin-bottom: 16px;">Selamat datang, {{ Auth::user()->name }}!</h2>
-                <p style="font-size: 1.1rem; color: #555; max-width: 480px; text-align: center;">Ini adalah halaman profil Anda. Kelola data akun, ubah password, dan atur alamat pengiriman dengan mudah melalui menu di sebelah kiri.</p>
+                <p style="font-size: 1.1rem; color: #555; max-width: 480px; text-align: center;">Ini adalah halaman profil Anda. Kelola data akun dan ubah password dengan mudah melalui menu di sebelah kiri.</p>
                 <div style="margin-top: 32px;">
                     <svg width="120" height="120" fill="none" viewBox="0 0 24 24" stroke="#e6dfd5">
                         <circle cx="12" cy="8" r="4" stroke-width="2"/>

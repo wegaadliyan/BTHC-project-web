@@ -12,15 +12,18 @@
         padding: 60px 120px;
         text-align: center;
         margin-bottom: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .main-image {
-        max-width: 800px;
+        max-width: 1000px;
         width: 100%;
         height: auto;
-        margin: 0 auto;
-        display: block;
-        margin-bottom: 60px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
     /* Info Sections */
@@ -137,7 +140,7 @@
 <div class="about-page">
     <!-- Hero Section -->
     <section class="about-hero">
-        <img src="{{ asset('images/kalung-aboutus.png') }}" alt="BTHC Collections" class="main-image">
+        <img src="{{ asset('images/about-us.jpg') }}" alt="BTHC Collections" class="main-image">
     </section>
 
     <!-- Info Sections -->
@@ -145,22 +148,25 @@
         <div class="info-section">
             <h2 class="info-title">Who We Are?</h2>
             <p class="info-description">
-                Contextual advertising programs sometimes have strict policies that need to be adhered too. Let's take Google as an example.
+                BetterHope Collection adalah brand aksesoris etnik modern handmade yang menghadirkan keindahan budaya dalam sentuhan gaya masa kini. Setiap produk dibuat dengan cinta, ketelitian, dan nilai keaslian.
             </p>
         </div>
 
         <div class="info-section">
-            <h2 class="info-title">Who We Do?</h2>
+            <h2 class="info-title">What We Do?</h2>
             <p class="info-description">
-                In this digital generation where information can be easily obtained within seconds, business cards still have retained their importance.
+                Kami merancang dan memproduksi aksesoris handmade berkualitas, menggabungkan unsur etnik, kreativitas lokal, dan desain modern untuk melengkapi gaya sehari-hari maupun momen spesial.
             </p>
         </div>
 
         <div class="info-section">
-            <h2 class="info-title">Why Choose Us</h2>
-            <p class="info-description">
-                A two or three storey house is the ideal way to maximise the piece of earth on which our home sits, but for older or infirm people.
-            </p>
+            <h2 class="info-title">Why Choose Us?</h2>
+            <ul class="info-description">
+                <li>- Handmade & limited pieces</li>
+                <li>- Desain etnik modern yang unik</li>
+                <li>- Kualitas terjaga dan penuh makna</li>
+                <li>- Mendukung karya dan pengrajin lokal</li>
+            </ul>
         </div>
     </div>
 
@@ -169,7 +175,7 @@
         <div class="quote-content">
             <span class="quote-mark">"</span>
             <p class="quote-text">
-                We support enabling women to exhibit their individuality and embrace their own style.
+                Bebas Menjadi Diri Sendiri, Ekspresikan Gayamu.
             </p>
         </div>
         <div class="quote-image">

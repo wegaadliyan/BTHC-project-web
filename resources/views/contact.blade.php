@@ -123,26 +123,31 @@
     <p class="information-label">INFORMATION</p>
     <h1 class="page-title">Contact Us</h1>
     <p class="contact-description">
-        As you might expect of a company that began as a high-end interiors contractor, we pay strict attention.
+        Terhubung dengan kami untuk segala pertanyaan seputar produk dan layanan BetterHope Collection.
     </p>
 
     <div class="contact-content">
         <div class="contact-info">
             <h2 class="location-title">Bandung</h2>
             <p class="address">
-                Jl. Sariasih no.54, Sarijadi, Kec.<br>
-                Sukasari, Kota Bandung, Jawa Barat
+                Jl. Sariasih No.54, Sarijadi, Kecamatan Sukasari, Kota Bandung, Jawa Barat 40151.
             </p>
         </div>
 
         <div class="contact-form">
-            <form action="#" method="POST">
+            <form action="{{ route('contact.store') }}" method="POST">
                 @csrf
+                @if(session('success'))
+                    <div style="padding:10px;background:#e6ffed;border:1px solid #b7f0c9;margin-bottom:12px">{{ session('success') }}</div>
+                @endif
                 <div class="form-group">
                     <input type="text" class="form-control" name="name" placeholder="Name" required>
                 </div>
                 <div class="form-group">
                     <input type="email" class="form-control" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="phone" placeholder="Phone (optional)">
                 </div>
                 <div class="form-group">
                     <textarea class="form-control" name="message" placeholder="Message" required></textarea>

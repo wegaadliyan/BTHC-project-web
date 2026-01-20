@@ -15,7 +15,7 @@
             <input type="number" name="price" style="font-size:1.1rem;padding:12px 16px;border:1px solid #ccc;border-radius:8px;" required value="{{ old('price') }}">
 
             <label style="font-size:1.35rem;font-weight:700;">Berat Produk (gram)</label>
-            <input type="number" name="weight" min="100" style="font-size:1.1rem;padding:12px 16px;border:1px solid #ccc;border-radius:8px;" required placeholder="Misal: 500" value="{{ old('weight') }}">
+            <input type="number" name="weight" style="font-size:1.1rem;padding:12px 16px;border:1px solid #ccc;border-radius:8px;" required placeholder="Misal: 500" value="{{ old('weight') }}">
 
             <label style="font-size:1.35rem;font-weight:700;">Deskripsi Produk</label>
             <input type="text" name="description" style="font-size:1.1rem;padding:12px 16px;border:1px solid #ccc;border-radius:8px;" value="{{ old('description') }}">

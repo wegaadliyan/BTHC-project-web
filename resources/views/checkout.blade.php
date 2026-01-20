@@ -36,11 +36,10 @@
                 <textarea id="shipping_address" placeholder="Alamat Lengkap Pengiriman" style="width:100%;padding:8px;margin-bottom:12px;min-height:80px;" required></textarea>
                 <textarea id="shipping_note" placeholder="Catatan Tambahan (Optional)" style="width:100%;padding:8px;margin-bottom:12px;min-height:60px;"></textarea>
                 
-                <div style="display:flex;gap:12px;margin-bottom:12px;">
-                    <input type="number" id="weight" min="100" placeholder="Berat (gram)" style="flex:1;padding:8px;" value="{{ $totalWeight }}" required>
-                    <!-- Hidden field: item_value is auto-populated from cart subtotal -->
-                    <input type="hidden" id="item_value" min="0" value="{{ $cartItems->sum('price') }}">
-                </div>
+                <!-- Hidden weight field - auto-populated from cart, not shown to user -->
+                <input type="hidden" id="weight" value="{{ $totalWeight }}">
+                <!-- Hidden field: item_value is auto-populated from cart subtotal -->
+                <input type="hidden" id="item_value" min="0" value="{{ $cartItems->sum('price') }}">
 
                 <div style="margin-bottom:12px;">
                     <label style="display:block;margin-bottom:8px;font-weight:600;">Pilih Kurir & Layanan:</label>
@@ -112,15 +111,34 @@
                 Total: Rp <span id="total-price">{{ number_format($cartItems->sum('price'), 0, ',', '.') }}</span>
             </div>
 
-            <button type="button" id="checkout-btn" class="btn btn-primary" style="width:100%;margin-top:16px;padding:12px;cursor:not-allowed;opacity:0.5;" disabled>
+            <button type="button" id="checkout-btn" style="width:100%;margin-top:16px;padding:12px;cursor:not-allowed;opacity:0.5;background:#D2B893;color:white;font-size:1.1rem;font-weight:600;border:none;border-radius:6px;transition:all 0.3s ease;" disabled>
                 Pilih Pengiriman Terlebih Dahulu
             </button>
         </div>
     </div>
 </div>
+
+<style>
+    #checkout-btn:not(:disabled):hover {
+        background-color:#B8945F !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #checkout-btn:not(:disabled):active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #checkout-btn:disabled {
+        background-color:#D2B893;
+        color:white;
+    }
+</style>
 @endsection
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+<script src="{{ asset('js/wilayah-helper.js') }}"></script>
 <script>
 // ============================================================================
 // SISTEM BITESHIP CHECKOUT EXPLANATION
@@ -173,11 +191,24 @@ $(document).ready(function() {
         });
     }
 
-    // Populate provinces dropdown
+    // Populate provinces dropdown - FILTERED: Only show major regions
     function populateProvinces(data) {
         let html = '<option value="">Pilih Provinsi</option>';
+        
+        // Filter hanya provinsi penting: Jabodetabek, Jawa Barat, Jawa Tengah, Jawa Timur, Sumatera Utara, Sumatera Selatan
+        const importantProvinces = [
+            'DKI Jakarta',
+            'Jawa Barat',
+            'Jawa Tengah',
+            'Jawa Timur',
+            'Sumatera Utara',
+            'Sumatera Selatan'
+        ];
+        
         $.each(data, function(i, province) {
-            html += `<option value="${province.province_id}">${province.province}</option>`;
+            if (importantProvinces.includes(province.province)) {
+                html += `<option value="${province.province_id}">${province.province}</option>`;
+            }
         });
         $('#province').html(html);
     }
@@ -216,9 +247,13 @@ $(document).ready(function() {
 
         const province = regionsData.find(p => p.province_id === provinceId);
         const city = province.cities.find(c => c.city_id === cityId);
-        if (city && city.districts) {
+        
+        if (city) {
+            // Gunakan expanded data jika ada, jika tidak gunakan dari JSON
+            let districts = getDistrictsForCity(cityId, city.districts);
+            
             let html = '<option value="">Pilih Kecamatan</option>';
-            $.each(city.districts, function(i, district) {
+            $.each(districts, function(i, district) {
                 html += `<option value="${district.name}" data-postal="${district.postal_code}">${district.name}</option>`;
             });
             $('#district').html(html).prop('disabled', false);
@@ -306,9 +341,9 @@ $(document).ready(function() {
             return;
         }
 
-        // Validate weight (minimum 100 gram)
+        // Validate weight (Biteship API requires minimum 100 gram)
         if (parseInt(weight) < 100) {
-            alert('Berat minimal 100 gram');
+            alert('Berat produk minimal 100 gram. Silakan tambahkan produk lagi atau hubungi admin.');
             return;
         }
 
@@ -342,8 +377,19 @@ $(document).ready(function() {
                     return;
                 }
 
+                // Filter rates to show only selected courier's services
+                const selectedCourierCode = courierRadio.data('company');
+                const filteredRates = rates.filter(function(rate) {
+                    return rate.courier_code && rate.courier_code.toLowerCase() === selectedCourierCode.toLowerCase();
+                });
+
+                if (!filteredRates || filteredRates.length === 0) {
+                    $('#shipping-result').html('<div style="color:#999;padding:20px;text-align:center;">Tidak ada layanan pengiriman untuk kurir yang dipilih di kota ini</div>');
+                    return;
+                }
+
                 let html = '<div style="margin-top:12px;">';
-                $.each(rates, function(i, rate) {
+                $.each(filteredRates, function(i, rate) {
                     const courier = rate.courier_name || rate.courier_code;
                     const service = rate.courier_service_name || rate.type;
                     const price = rate.price || 0;
@@ -374,7 +420,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     errorMsg += xhr.responseJSON.error;
                 } else if (xhr.status === 400) {
-                    errorMsg += 'Data pengiriman tidak valid. Periksa kode pos (5 digit) dan berat (minimal 100g).';
+                    errorMsg += 'Data pengiriman tidak valid. Periksa kode pos (5 digit).';
                 } else if (xhr.status === 404) {
                     errorMsg += 'Rute pengiriman ke area ini tidak tersedia.';
                 } else {
